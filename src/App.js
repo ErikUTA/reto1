@@ -1,33 +1,39 @@
-import React, { useState } from 'react';
-import Header from './components/Header/Header';
-import Landing from './components/about/about';
-import { viewsEnum } from './components/constantes/constantes';
 import './App.css';
-import Excercises from './components/Excercises/Excercises';
+import {
+  BrowserRouter as Router,
+  Switch,
+  Route,
+  // Link
+} from "react-router-dom";
+
+import Home from './pages/Home'
+import QRgen from './pages/QRgenerator'
+import Map from './pages/mapsGoogle/mapsGoogle';
 
 function App() {
-  const [view, setView] = useState(viewsEnum.LANDING);
-
-  const handleNavigation = (newView) => {
-    setView(newView);
-  }
-
-  let content = null;
-
-  switch (view) {
-    case viewsEnum.EXCERCISES:
-      content = <Excercises />;
-      break;
-    case viewsEnum.LANDING:
-    default:
-      content = <Landing />;
-  }
-
   return (
-    <div>
-      <Header view={view} onNav={handleNavigation} />
+    <div className="App">
+      <div className="App-header">
+      
+        <Router>
+          <div>
 
-      {content}
+            <Switch>
+              <Route exact path="/">
+                <Home/>
+              </Route>
+              <Route path="/qr_generator">
+                <QRgen/>
+              </Route>              
+              <Route path="/maps">
+                <Map/>
+              </Route>
+            </Switch>
+
+          </div>
+        </Router>
+
+      </div>
     </div>
   );
 }
