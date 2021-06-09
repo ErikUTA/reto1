@@ -50,23 +50,30 @@ export class MapContainer extends Component {
       const url = `http://localhost:8080/api/lineOne/${this.state.rutaID}`;
       axios.get(url).then(response => {          
         var endPoint = response.data.length;        
-        this.state.polylineGreen = response.data;  
-        this.state.originLineOne = response.data[0];  
-        this.state.destinationLineOne = response.data[endPoint];                      
+        // this.state.polylineGreen = response.data;  
+        // this.state.originLineOne = response.data[0];  
+        // this.state.destinationLineOne = response.data[endPoint];                      
+        this.setState({polylineGreen: response.data});
+        this.setState({originLineOne: response.data[0]});
+        this.setState({destinationLineOne: response.data[endPoint]});
         this.componentDidMount();                              
       });                        
   }
 
   methodLineEnd = (id) =>{        
-      this.state.rutaID = id;
+      // this.state.rutaID = id;
+      this.setState({ rutaID: id});
       const url = `http://localhost:8080/api/lineTwo/${id}`;
       axios.get(url).then(response => {              
         var endPoint = response.data.length;          
         console.log(endPoint);
         console.log(response);
-        this.state.polylineOrange = response.data;  
-        this.state.originLineTwo = response.data[0];  
-        this.state.destinationLineTwo = response.data[endPoint];                   
+        // this.state.polylineOrange = response.data;  
+        // this.state.originLineTwo = response.data[0];  
+        // this.state.destinationLineTwo = response.data[endPoint];                   
+        this.setState({polylineOrange: response.data});
+        this.setState({originLineTwo: response.data[0]});
+        this.setState({destinationLineTwo: response.data[endPoint]});
         this.methodLineStart();                                         
       });               
   }  
@@ -97,7 +104,7 @@ export class MapContainer extends Component {
       <div className="principalDiv">
         <div className="div1">
           <div className="menu">
-            <img className="img" alt="Image not found" src={logo} />
+            <img className="img" alt="..." src={logo} />
           </div>
           <div className="Select">                                  
             {              
