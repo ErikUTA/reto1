@@ -32,7 +32,11 @@
         margin: 30px;
         padding: 10px;
         background-color: white;
-        height: 350px;        
+        height: 350px; 
+        scroll-behavior: auto;
+        display: block;        
+        overflow-y: scroll;
+        scroll-behavior: smooth;
     }
 
     .btn {

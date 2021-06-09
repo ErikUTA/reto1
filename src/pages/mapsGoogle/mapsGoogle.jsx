@@ -1,4 +1,4 @@
-import React, { Component, useState } from 'react';
+import React, { Component } from 'react';
 import {Map, Marker, GoogleApiWrapper, Polyline } from 'google-maps-react';
 import './mapsGoogle.css';
 import inicio from '../../assets/images/InicioPrototipo.png';
@@ -6,128 +6,79 @@ import fin from '../../assets/images/FinPrototipo.png';
 import logo from '../../assets/images/logo2.png';
 import camion from '../../assets/images/camion.png';
 import axios from "axios";
+
 export class MapContainer extends Component {
   constructor(props) {
     super(props);    
 
-    this.state = {
-      count: 0,
-      icon: 0,
-      mapCenter: {
-        lat: "",
-        lng: "",
-      },
-      qrscan: "",
-      // rutas: [
-      //   {
-      //     nombre: "RUTA 1",
-      //     destination: { lat: 21.91598342922394, lng: -102.30177166988736 },
-      //   },
-      //   {
-      //     nombre: "RUTA 2",
-      //     destination: { lat: 21.91853930348209, lng: -102.29448911249793 },
-      //   },
-      //   {
-      //     nombre: "RUTA 3",
-      //     destination: { lat: 21.909819305325815, lng: -102.30321742093018 },
-      //   },
-      //   {
-      //     nombre: "RUTA 4",
-      //     destination: { lat: 21.9254832351074, lng: -102.30584387413273 },
-      //   }
-      // ],
-      // prueba: null,
-      coors: null,      
-      linea1: null,
-      id: 629,
+    this.state = {                                    
+      busStop: 629,
       rutaID: null,
-      linea2: null,
-      listaRutas: null,
-      origin: { lat: 21.921338304212593, lng: -102.29783418706253 },
-      destination: { lat: 21.884454222315508, lng: -102.3029899437197 },
-      origin2: { lat: 21.921338304212593, lng: -102.29783418706253 },
-      destination2: { lat: 21.884454222315508, lng: -102.3029899437197 },
-      lineCoordinates: [
+      polylineGreen: null,
+      polylineOrange: null,
+      routes: [],
+      originLineOne: { lat: 21.921338304212593, lng: -102.29783418706253 },
+      destinationLineOne: { lat: 21.884454222315508, lng: -102.3029899437197 },
+      originLineTwo: { lat: 21.921338304212593, lng: -102.29783418706253 },
+      destinationLineTwo: { lat: 21.884454222315508, lng: -102.3029899437197 },
+      lineCoordinatesExample: [
         { lat: 21.921338304212593, lng: -102.29783418706253 },
         { lat: 21.884454222315508, lng: -102.3029899437197 },
+        { lat: 21.884554222315508, lng: -102.3030899437197 },
+        { lat: 21.884654222315508, lng: -102.3031899437197 },
+        { lat: 21.884754222315508, lng: -102.3032899437197 },
       ],
+      originExample: { lat: 21.921338304212593, lng: -102.29783418706253 },
+      destinationExample: { lat: 21.884454222315508, lng: -102.3029899437197 },
+      routesExample: []
     }; 
   }
-
-  handleScans = (data) => {
-    if (data) {
-      data = JSON.parse(data);
-      console.log(data);
-      this.setState({ coors: data });
-      window.alert("Código escaneado correctamente");
-      this.handleSelect();
-    }
-  };
-  handleError(err) {
-    console.error(err);
-  }
-  handleChanges(e) {
-    this.setState(e.target.value.toLowerCase());
-  }  
-
+  
   componentDidMount() {        
-    this.metodoGet();    
+    this.methodGet();  
+    this.getDirections();
   }
 
-  metodoGet = () => {    
-    const url = `http://localhost:8080/api/data/${this.state.id}`
-    axios.get(url).then(response => {      
-      this.setData(response.data);   
-      console.log(this.state.listaRutas);
-    })         
-    console.log(this.state.listaRutas);
+  methodGet = () => {    
+    const url = `http://localhost:8080/api/data/${this.state.busStop}`
+    axios.get(url).then(response => {                        
+      this.setState({ routes: response.data });               
+    });    
   }
 
-  metodoLineaInicio = (id) =>{
-    const url = `http://localhost:8080/api/lineOne/${id}`
-    axios.get(url).then(response => {
-      // console.log(response.data);    
-      this.setState({ linea1: response.data });
-      this.setState({ origin: response.data[0] });
-      this.setState({ destination: response.data[289] });
-      // this.state.linea1 = response.data;
-      console.log(this.state.linea1);
-    })         
+  methodLineStart = () =>{        
+      const url = `http://localhost:8080/api/lineOne/${this.state.rutaID}`;
+      axios.get(url).then(response => {          
+        var endPoint = response.data.length;        
+        this.state.polylineGreen = response.data;  
+        this.state.originLineOne = response.data[0];  
+        this.state.destinationLineOne = response.data[endPoint];                      
+        this.componentDidMount();                              
+      });                        
   }
 
-  metodoLineaFin = (id) =>{
-    const url = `http://localhost:8080/api/lineTwo/${id}`
-    axios.get(url).then(response => {
-      // console.log(response.data);    
-      // this.state.linea2 = response.data;
-      this.setState({ linea2: response.data });
-      this.setState({ origin2: response.data[0] });
-      this.setState({ destination2: response.data[254] });
-      console.log(this.state.linea2);
-    })         
-  }
-
-  // meotodoLineaFin = () =>{
-  //   const url = `http://localhost:8080/api/lineTwo/${this.state.id2 ? this.state.id2 : 596}`
-  //   axios.get(url).then(response => {
-  //     // console.log(response.data);    
-  //     // this.state.linea2 = response.data;
-  //     this.setState({ linea2: response.data });
-  //     this.setState({ origin2: response.data[0] });
-  //     this.setState({ destination2: response.data[254] });
-  //     console.log(this.state.linea2);
-  //   })         
-  // }
+  methodLineEnd = (id) =>{        
+      this.state.rutaID = id;
+      const url = `http://localhost:8080/api/lineTwo/${id}`;
+      axios.get(url).then(response => {              
+        var endPoint = response.data.length;          
+        console.log(endPoint);
+        console.log(response);
+        this.state.polylineOrange = response.data;  
+        this.state.originLineTwo = response.data[0];  
+        this.state.destinationLineTwo = response.data[endPoint];                   
+        this.methodLineStart();                                         
+      });               
+  }  
   
   getDirections = () => {
       const DirectionsService = new this.props.google.maps.DirectionsService();
       DirectionsService.route(
         {
-          origin: this.state.origin,
-          destination: this.state.destination,
+          origin: this.state.originExample,
+          destination: this.state.destinationExample,
           travelMode: this.props.google.maps.TravelMode.DRIVING,
-          optimizeWaypoints: true,
-          // waypoints: puntos1
+          optimizeWaypoints: true,          
         },
         (result, status) => {
           if (status === this.props.google.maps.DirectionsStatus.OK) {
@@ -140,34 +91,6 @@ export class MapContainer extends Component {
         }
       );
   };
-  
-
-  animation = () => {
-    var time = setInterval(() => {      
-      this.state.count = (this.state.count + 0.5);      
-      this.state.icon = this.state.count + "%";
-      // console.log(this.icon);      
-      console.log(this.state.icon);      
-      if (this.state.icon === "99.5%") {        
-        clearTimeout(time);
-        this.state.count = "0.5%";              
-      }
-    }, 500);
-  };
-
-  handleChange = (address) => {
-    this.setState({ address });
-  };
-
-  routesMaps = (name) => {
-    this.state.id2 = name;
-    this.setState((state) => {
-      return { destination: name };
-    });    
-    this.state.count = 0;
-    // this.animation();
-    this.getDirections();
-  };
 
   render() {
     return (
@@ -176,16 +99,20 @@ export class MapContainer extends Component {
           <div className="menu">
             <img className="img" alt="Image not found" src={logo} />
           </div>
-          <div className="Select">            
-            {/* {this.state.listaRutas.map((n) => (
-              <button
-                key={n.nombre}
-                className="btn"
-                onClick={(e) => this.metodoLineaInicio(n.rutaID, e)}
-              >
-                {n.nombre}
-              </button>
-            ))}             */}
+          <div className="Select">                                  
+            {              
+              this.state.routes[2] ?
+                this.state.routes.map((n) =>
+                  <button
+                    key={n.nombre}
+                    className="btn"
+                    onClick={(e) => this.methodLineEnd(n.rutaID, e)}
+                  >
+                    {n.nombre}
+                  </button>
+                )
+              : "El código QR escaneado es incorrecto"
+            }            
           </div>
           <div>
             <img
@@ -200,22 +127,28 @@ export class MapContainer extends Component {
         <div className="div2">
           <Map
             google={this.props.google}
-            zoom={15}
-            initialCenter={this.state.destination ? this.state.destination : null}
-            center={this.state.destination ? this.state.destination : null}
+            zoom={14}
+            initialCenter={this.state.originLineOne ? this.state.originLineOne : this.state.originExample}
+            center={this.state.originLineTwo ? this.state.originLineTwo : this.state.originExample}
           >
-            <Marker position={this.state.origin ? this.state.origin : null} icon={inicio}/>
-            <Marker position={this.state.destination ? this.state.destination : null} icon={fin} />
+            <Marker 
+              position={this.state.originLineOne ? this.state.originLineOne : this.state.originExample} 
+              icon={inicio}
+            />            
+            <Marker 
+              position={this.state.originLineTwo ? this.state.originLineTwo : this.state.destinationExample} 
+              icon={fin} 
+            />            
 
             <Polyline
               geodesic={true}
               path={
-                this.state.linea1 ? this.state.linea1 : this.state.lineCoordinates
+                this.state.polylineGreen ? this.state.polylineGreen : this.state.routesExample
               }              
               strokeColor="#fab712"
               options={{
                 strokeOpacity: 2,
-                strokeWeight: 2,
+                strokeWeight: 4,
                 fillOpacity: 10,
                 // icons: [
                 //   {
@@ -232,12 +165,12 @@ export class MapContainer extends Component {
             <Polyline
               geodesic={true}
               path={
-                this.state.linea2 ? this.state.linea2 : this.state.lineCoordinates
+                this.state.polylineOrange ? this.state.polylineOrange : this.state.routesExample
               }              
               strokeColor="green"
               options={{
                 strokeOpacity: 2,
-                strokeWeight: 2,
+                strokeWeight: 4,
                 fillOpacity: 10,
                 // icons: [
                 //   {
